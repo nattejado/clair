@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CL.AIR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* Layout: one calm column, a quiet hero, then a full width live building console as the centerpiece. */
+:root{
+  --bg:#ECEAE8; --surface:#F7F6F5; --raised:#FFFFFF; --ink:#1D1C1B; --muted:#6C6865; --line:#DAD6D2;
+  --accent:#5677F2; --accent-soft:rgba(86,119,242,.14); --glow:rgba(110,140,255,.55);
+  --good:#2C8763; --warn:#AD7414; --bad:#BF4337;
+  --good-soft:rgba(44,135,99,.12); --warn-soft:rgba(173,116,20,.13); --bad-soft:rgba(191,67,55,.12);
+  --display:"Hanken Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --body:"Hanken Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131312; --surface:#1B1A19; --raised:#222120; --ink:#EDEBE8; --muted:#9B9691; --line:#2E2C2A;
+  --accent:#8DA4FF; --accent-soft:rgba(141,164,255,.16); --glow:rgba(141,164,255,.6);
+  --good:#5CC39A; --warn:#E2AA4C; --bad:#F07669;
+  --good-soft:rgba(92,195,154,.14); --warn-soft:rgba(226,170,76,.14); --bad-soft:rgba(240,118,105,.14);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131312; --surface:#1B1A19; --raised:#222120; --ink:#EDEBE8; --muted:#9B9691; --line:#2E2C2A;
+  --accent:#8DA4FF; --accent-soft:rgba(141,164,255,.16); --glow:rgba(141,164,255,.6);
+  --good:#5CC39A; --warn:#E2AA4C; --bad:#F07669;
+  --good-soft:rgba(92,195,154,.14); --warn-soft:rgba(226,170,76,.14); --bad-soft:rgba(240,118,105,.14);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+p{margin:0}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
+.mark{font-family:var(--display);font-weight:300;font-size:20px;letter-spacing:.06em;text-decoration:none}
+.mark b{font-weight:300;color:var(--accent)}
+.links{display:flex;gap:22px;font-size:14px;color:var(--muted)}
+.links a{text-decoration:none}
+.links a:hover{color:var(--ink)}
+@media (max-width:560px){.links a:not(.cta-link){display:none}}
+
+/* hero */
+.hero{padding-block:72px 40px;text-align:center;display:grid;justify-items:center;gap:18px}
+.word{font-weight:200;font-size:clamp(76px,16vw,184px);line-height:.9;letter-spacing:-.035em}
+.word span{color:var(--accent)}
+.tag{font-size:clamp(18px,2.4vw,22px);font-weight:300;color:var(--muted)}
+.led{width:64px;height:6px;border-radius:6px;background:var(--accent);box-shadow:0 0 18px 3px var(--glow);margin-block:10px 6px;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.55;box-shadow:0 0 10px 1px var(--glow)}}
+.lede{max-width:34ch;font-size:clamp(22px,3vw,30px);font-weight:300;line-height:1.3;letter-spacing:-.01em}
+.btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.btn{font:inherit;font-size:15px;font-weight:500;border-radius:999px;padding:11px 22px;border:1px solid var(--line);background:var(--raised);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+
+/* section */
+section{padding-block:56px}
+.sec-head{display:grid;gap:10px;margin-bottom:28px;max-width:640px}
+.sec-head h2{font-size:clamp(30px,4.4vw,44px);font-weight:300;letter-spacing:-.02em;line-height:1.1}
+.sec-head p{color:var(--muted);font-size:17px}
+
+/* console */
+.console{background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.bldg{display:grid;gap:2px;min-width:0}
+.bldg strong{font-weight:500;font-size:15px}
+.bldg span{font-size:13px;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.clock{font-family:var(--mono);font-size:22px;letter-spacing:.02em;min-width:64px;text-align:right}
+.icon-btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--raised);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+.icon-btn:hover{border-color:var(--ink)}
+.switch{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--raised);border-radius:999px;padding:5px 6px 5px 14px;cursor:pointer;font:inherit;color:var(--ink)}
+.switch .lbl{font-size:13px;font-weight:500}
+.track{width:40px;height:24px;border-radius:999px;background:var(--line);position:relative;transition:background .2s}
+.track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--raised);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch[aria-checked="true"] .track{background:var(--accent)}
+.switch[aria-checked="true"] .track::after{transform:translateX(16px)}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}
+.kpi{padding:18px 20px;display:grid;gap:4px;border-right:1px solid var(--line);min-width:0}
+.kpi:last-child{border-right:0}
+.kpi .v{font-family:var(--display);font-weight:300;font-size:34px;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12.5px;color:var(--muted)}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi:nth-child(2){border-right:0}.kpi:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:0}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px;border-right:1px solid var(--line);align-content:start;align-items:start}
+@media (max-width:900px){.rooms{border-right:0;border-bottom:1px solid var(--line)}}
+@media (max-width:640px){.rooms{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:400px){.rooms{grid-template-columns:1fr}}
+.room{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px;min-width:0;transition:border-color .3s}
+.room.poor{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.room-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.room-name{font-weight:500;font-size:14px;line-height:1.25}
+.src{font-size:11px;color:var(--muted);margin-top:2px}
+.chip{font-size:11px;font-weight:600;letter-spacing:.04em;border-radius:999px;padding:3px 8px;white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.fair{background:var(--warn-soft);color:var(--warn)}
+.chip.poor{background:var(--bad-soft);color:var(--bad)}
+.co2{font-family:var(--display);font-weight:300;font-size:30px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.co2 small{font-size:12px;color:var(--muted);font-family:var(--body);letter-spacing:0;margin-left:3px}
+.mini{display:grid;grid-template-columns:repeat(3,auto);justify-content:space-between;gap:6px;font-size:11.5px;color:var(--muted)}
+.mini b{display:block;font-family:var(--mono);font-weight:500;font-size:12.5px;color:var(--ink)}
+.mini b.hot{color:var(--bad)}
+.air{display:grid;gap:5px}
+.air-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
+.meter{height:5px;border-radius:5px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .4s ease}
+.flag{font-size:11.5px;line-height:1.35;background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:7px 9px}
+
+.side{display:grid;grid-template-rows:auto auto 1fr;min-width:0}
+.chart-box{padding:20px 20px 10px;display:grid;gap:8px}
+.chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.chart-head h3{font-size:14px;font-weight:500;font-family:var(--body)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:5px;background:var(--accent)}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--muted) 0 4px,transparent 4px 7px)}
+canvas{width:100%;height:190px;display:block}
+.events{padding:12px 20px 18px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.ev-btns{display:flex;flex-wrap:wrap;gap:8px}
+.log{padding:16px 20px 20px;display:grid;gap:10px;align-content:start;min-width:0}
+.log ol{list-style:none;margin:0;padding:0;display:grid;gap:9px;max-height:260px;overflow:auto}
+.log li{display:grid;grid-template-columns:44px 1fr;gap:10px;font-size:13px;line-height:1.4}
+.log li time{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:1px}
+.log li.act span{color:var(--ink)}
+.log li.warn span{color:var(--bad)}
+.log li.empty{grid-template-columns:1fr;color:var(--muted)}
+.foot-note{padding:12px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brands{display:flex;flex-wrap:wrap;gap:6px}
+.brands span{border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+
+/* pillars */
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;border-top:1px solid var(--line);padding-top:32px}
+@media (max-width:800px){.pillars{grid-template-columns:1fr;gap:28px}}
+.pillar{display:grid;gap:10px;align-content:start}
+.pillar h3{font-size:24px;font-weight:300;letter-spacing:-.01em}
+.pillar p{color:var(--muted);max-width:36ch}
+
+/* split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:800px){.split{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;display:grid;gap:12px;align-content:start}
+.panel .big{font-family:var(--display);font-weight:200;font-size:56px;line-height:1;letter-spacing:-.03em}
+.panel h3{font-size:22px;font-weight:400}
+.panel p{color:var(--muted)}
+.steps{display:grid;gap:10px;margin:6px 0 0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:grid;grid-template-columns:26px 1fr;gap:10px;font-size:15px}
+.steps li::before{counter-increment:s;content:counter(s);font-family:var(--mono);font-size:12px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted)}
+
+/* who */
+.who{display:flex;flex-wrap:wrap;gap:10px}
+.who span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:15px}
+
+/* contact */
+.contact{text-align:center;display:grid;justify-items:center;gap:16px;padding-block:80px}
+.contact h2{font-size:clamp(34px,5vw,56px);font-weight:200;letter-spacing:-.03em;line-height:1.05}
+.contact p{color:var(--muted);max-width:46ch}
+footer{border-top:1px solid var(--line)}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:22px;font-size:13px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){.led{animation:none}.meter i,.track,.track::after{transition:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="mark" href="#top">CL<b>.</b>AIR</a>
+    <div class="links">
+      <a href="#demo">Demo</a>
+      <a href="#how">How it works</a>
+      <a href="#voc">CO2 vs VOCs</a>
+      <a class="cta-link" href="#pilot">Run a pilot</a>
+    </div>
+  </div>
+</nav>
+
+<header class="wrap hero" id="top">
+  <p class="eyebrow">Ventilation autopilot</p>
+  <h1 class="word">CL<span>.</span>AIR</h1>
+  <p class="tag">Short for clean air.</p>
+  <div class="led" aria-hidden="true"></div>
+  <p class="lede">We turn the sensors buildings already have into healthier, cheaper ventilation.</p>
+  <div class="btns">
+    <a class="btn primary" href="#demo">Watch it run</a>
+    <a class="btn" href="#pilot">Run a pilot</a>
+  </div>
+</header>
+
+<section class="wrap" id="demo">
+  <div class="sec-head">
+    <p class="eyebrow">Live demo</p>
+    <h2>One building, one day, on autopilot.</h2>
+    <p>Six rooms, five sensor brands, one ventilation system. Flip the autopilot off to see the same day on a fixed schedule.</p>
+  </div>
+
+  <div class="console" aria-label="Building ventilation console">
+    <div class="bar">
+      <div class="bldg">
+        <strong>Sample office, Floor 4</strong>
+        <span>Mixed use · 6 zones · BACnet controller</span>
+      </div>
+      <div class="controls">
+        <button class="switch" id="auto" role="switch" aria-checked="true" type="button">
+          <span class="lbl" id="autoLbl">Autopilot on</span><span class="track" aria-hidden="true"></span>
+        </button>
+        <button class="icon-btn" id="play" type="button">Pause</button>
+        <button class="icon-btn" id="speed" type="button">1x</button>
+        <button class="icon-btn" id="reset" type="button">Restart day</button>
+        <span class="clock" id="clock" aria-live="off">08:30</span>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><span class="eyebrow">Energy vs fixed</span><span class="v" id="kEnergy">0%</span><span class="s" id="kEnergyS">fresh air conditioning load</span></div>
+      <div class="kpi"><span class="eyebrow">Healthy air</span><span class="v" id="kHealthy">0%</span><span class="s" id="kHealthyS">of occupied room minutes</span></div>
+      <div class="kpi"><span class="eyebrow">Worst CO2 today</span><span class="v" id="kPeak">0</span><span class="s">ppm, any room</span></div>
+      <div class="kpi"><span class="eyebrow">Lab tests flagged</span><span class="v" id="kFlags">0</span><span class="s" id="kFlagsS">VOCs ventilation can't fix</span></div>
+    </div>
+
+    <div class="grid">
+      <div class="rooms" id="rooms"></div>
+      <div class="side">
+        <div class="chart-box">
+          <div class="chart-head">
+            <h3>Worst room CO2</h3>
+            <div class="legend"><span><i></i>Autopilot</span><span><i class="dash"></i>Fixed schedule</span></div>
+          </div>
+          <canvas id="chart" aria-label="Line chart of the highest room CO2 level through the day, autopilot versus fixed schedule"></canvas>
+        </div>
+        <div class="events">
+          <span class="eyebrow">Throw something at it</span>
+          <div class="ev-btns">
+            <button class="icon-btn" id="evMeet" type="button">Pack the conference room</button>
+            <button class="icon-btn" id="evToast" type="button">Burn toast in the kitchen</button>
+            <button class="icon-btn" id="evVoc" type="button">New furniture in 204</button>
+          </div>
+        </div>
+        <div class="log">
+          <span class="eyebrow" id="logTitle">Autopilot log</span>
+          <ol id="log"></ol>
+        </div>
+      </div>
+    </div>
+    <div class="foot-note">
+      <span>Simulated building. Numbers are illustrative.</span>
+      <span class="brands"><span>Kaiterra</span><span>Awair</span><span>Airthings</span><span>uHoo</span><span>SEN66 kit</span><span>BMS CO2</span></span>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="how">
+  <div class="sec-head">
+    <p class="eyebrow">How it works</p>
+    <h2>Software, not another box on the wall.</h2>
+  </div>
+  <div class="pillars">
+    <div class="pillar">
+      <p class="eyebrow">Hardware agnostic</p>
+      <h3>Any sensor.</h3>
+      <p>We read the monitors a building already owns, from Kaiterra and Awair to the CO2 sensors inside the BMS. No rip and replace.</p>
+    </div>
+    <div class="pillar">
+      <p class="eyebrow">Ventilation orchestration</p>
+      <h3>Air that moves itself.</h3>
+      <p>We write back to the HVAC over BACnet and Modbus, room by room. More fresh air when people are there, less when they aren't, and the energy savings to prove it.</p>
+    </div>
+    <div class="pillar">
+      <p class="eyebrow">Built for every building</p>
+      <h3>Every building.</h3>
+      <p>LEED offices chasing points, and the schools, clinics and small buildings that never had a facilities team to watch a dashboard.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="voc">
+  <div class="sec-head">
+    <p class="eyebrow">CO2 vs VOCs</p>
+    <h2>CO2 is easy. Benzene is hard.</h2>
+    <p>Ventilation fixes CO2. It doesn't always fix what off gasses from furniture, stoves and cleaning products, and a cheap TVOC sensor can't tell you which compound it is.</p>
+  </div>
+  <div class="split">
+    <div class="panel">
+      <span class="big mono">800<span style="font-size:22px"> ppm</span></span>
+      <h3>CO2: sense it, ventilate it.</h3>
+      <p>Every 500 ppm rise in CO2 is linked to roughly a 15% drop in cognitive scores. The autopilot keeps occupied rooms under target automatically.</p>
+    </div>
+    <div class="panel">
+      <span class="big mono">3<span style="font-size:22px"> µg/m³</span></span>
+      <h3>Benzene: alarm, then diagnose.</h3>
+      <p>The LEED v5 benzene limit. We treat the sensor like a smoke alarm and the lab like the doctor.</p>
+      <ol class="steps">
+        <li>Sensors catch a VOC spike that ventilation doesn't clear.</li>
+        <li>CL.AIR flags the room and recommends a targeted lab test.</li>
+        <li>Results land in the LEED report, with the fix logged.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">Who it's for</p>
+    <h2>Anyone responsible for the air in a room full of people.</h2>
+  </div>
+  <div class="who">
+    <span>LEED v5 offices</span><span>K to 12 classrooms</span><span>Clinics</span><span>Labs</span><span>Small commercial buildings</span><span>Property managers</span>
+  </div>
+</section>
+
+<section class="wrap contact" id="pilot">
+  <div class="led" aria-hidden="true"></div>
+  <h2>Run a pilot in your building.</h2>
+  <p>We're looking for a handful of facility managers and schools to try CL.AIR on the sensors they already have. Thirty days, no new hardware.</p>
+  <div class="btns">
+    <a class="btn primary" href="https://nattejado.github.io" target="_blank" rel="noopener">Contact Natalia Tejado</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>CL.AIR · San Francisco</span>
+    <span>Short for clean air.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+const START=7*60, END=19*60, G=3; // G: ppm per minute per person per unit volume
+const ROOMS=[
+  {id:"conf",name:"Conference A",src:"Kaiterra Sensedge",vol:1,
+    occ:t=>inR(t,9,10)?10:inR(t,11,12)?8:inR(t,14,15.5)?12:inR(t,16,17)?6:0},
+  {id:"open",name:"Open office",src:"BMS CO2 · BACnet",vol:4,
+    occ:t=>inR(t,8,12)?25:inR(t,12,13)?10:inR(t,13,17.5)?25:inR(t,17.5,18.5)?8:0},
+  {id:"c204",name:"Classroom 204",src:"SEN66 kit",vol:2,
+    occ:t=>inR(t,8,12)?26:inR(t,12.75,15)?26:0},
+  {id:"exam",name:"Exam room 3",src:"Awair Omni",vol:.6,
+    occ:t=>(inR(t,9,12)||inR(t,13,17))&&Math.floor(t/30)%2===0?2:0},
+  {id:"lobby",name:"Lobby",src:"Airthings View Plus",vol:3,
+    occ:t=>inR(t,8,9)?15:inR(t,12,13)?12:inR(t,17,18)?15:inR(t,7.5,18.5)?3:0},
+  {id:"kit",name:"Break kitchen",src:"uHoo Aura",vol:1,
+    occ:t=>inR(t,12,13)?10:inR(t,8,9)?4:inR(t,15,15.5)?3:0}
+];
+function inR(t,a,b){return t>=a*60&&t<b*60}
+const fmt=t=>String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");
+const n0=x=>Math.round(x).toLocaleString("en-US");
+
+function makeSim(auto){
+  return {auto,rooms:ROOMS.map(r=>({co2:430,pm:5,voc:100,d:auto?.15:.5,poorCO2:false,flagged:false,vocHigh:0,lastLogD:auto?.15:.5})),
+    energy:0,healthy:0,occMin:0,peak:430,flags:0,series:[],log:[]};
+}
+let A,F,t,extra,running=true,speed=1,showAuto=true,timer=null,toastAt=-1;
+
+function status(r){
+  const c=r.co2<800?0:r.co2<1100?1:2, p=r.pm<12?0:r.pm<35?1:2, v=r.voc<150?0:r.voc<250?1:2;
+  return Math.max(c,p,v);
+}
+function pushLog(sim,cls,msg){sim.log.unshift({t,cls,msg});if(sim.log.length>40)sim.log.pop()}
+
+function step(sim){
+  let worst=0;
+  ROOMS.forEach((def,i)=>{
+    const r=sim.rooms[i];
+    let occ=def.occ(t); if(def.id==="conf"&&extra.meetUntil>t) occ=14;
+    const gen=occ*G/def.vol;
+    // controller
+    let target;
+    if(sim.auto){
+      const need=Math.max(0,(gen/(800-420)-.01)/.1);
+      target=need+(r.co2-780)/900;
+      target=Math.max(occ>0?.2:.1,target);
+      if(r.pm>15) target=Math.max(target,.95);
+      if(r.voc>200) target=Math.max(target,.75);
+      target=Math.min(1,Math.max(.1,target));
+      r.d+=(target-r.d)*.25;
+    } else r.d=.5;
+    const rate=.01+.1*r.d;
+    // CO2
+    r.co2+=gen-rate*(r.co2-420);
+    // PM2.5
+    let pmSrc=0, vocSrc=0;
+    if(def.id==="kit"&&(t===toastAt||t===12*60+12)){pmSrc=t===toastAt?85:45;vocSrc=t===toastAt?140:60}
+    if(def.id==="c204"&&extra.furnitureFrom>=0&&t>=extra.furnitureFrom){vocSrc+=10*Math.exp(-(t-extra.furnitureFrom)/260)}
+    r.pm+=pmSrc-(.01+.6*rate)*(r.pm-4);
+    r.voc+=vocSrc-(.005+.4*rate)*(r.voc-100);
+    // energy
+    sim.energy+=r.d*def.vol;
+    if(occ>0){sim.occMin++; if(status(r)===0) sim.healthy++}
+    sim.peak=Math.max(sim.peak,r.co2);
+    worst=Math.max(worst,r.co2);
+    // logs
+    if(sim.auto){
+      if(Math.abs(r.d-r.lastLogD)>.28){
+        const up=r.d>r.lastLogD;
+        let why=r.pm>15?`PM2.5 at ${n0(r.pm)} µg/m³`:r.voc>200?`VOC index at ${n0(r.voc)}`:up?`${occ} people, CO2 rising to ${n0(r.co2)} ppm`:occ===0?"room is empty":"CO2 back in range";
+        pushLog(sim,"act",`${def.name}: fresh air ${up?"up":"down"} to ${n0(r.d*100)}%. ${why[0].toUpperCase()+why.slice(1)}.`);
+        r.lastLogD=r.d;
+      }
+    }
+    if(r.co2>1100&&!r.poorCO2){r.poorCO2=true;pushLog(sim,"warn",`${def.name} hit ${n0(r.co2)} ppm CO2${sim.auto?".":" with no response on the fixed schedule."}`)}
+    if(r.co2<950) r.poorCO2=false;
+    if(r.pm>35&&!r.pmHi){r.pmHi=true;pushLog(sim,"warn",`${def.name}: PM2.5 spiked to ${n0(r.pm)} µg/m³${sim.auto?". Purging.":"."}`)}
+    if(r.pm<15) r.pmHi=false;
+    r.vocHigh=r.voc>230?r.vocHigh+1:0;
+    if(sim.auto&&r.vocHigh===25&&!r.flagged){r.flagged=true;sim.flags++;pushLog(sim,"warn",`${def.name}: VOCs still high after 25 min of extra air. Lab test recommended for benzene and formaldehyde.`)}
+  });
+  sim.series.push(worst);
+}
+
+function reset(){
+  A=makeSim(true);F=makeSim(false);t=START;extra={meetUntil:-1,furnitureFrom:-1};toastAt=-1;
+  pushLog(A,"act","Autopilot connected to 6 sensors across 5 brands.");
+  pushLog(F,"act","Fixed schedule: every zone at 50% fresh air, 7:00 to 19:00.");
+  while(t<8*60+30){step(A);step(F);t++}
+}
+
+// DOM
+const $=id=>document.getElementById(id);
+const roomsEl=$("rooms");
+roomsEl.innerHTML=ROOMS.map(r=>`<div class="room" id="r_${r.id}">
+  <div class="room-top"><div><div class="room-name">${r.name}</div><div class="src">${r.src}</div></div><span class="chip"></span></div>
+  <div class="co2"><span class="cv"></span><small>ppm CO2</small></div>
+  <div class="mini"><span>People<b class="po"></b></span><span>PM2.5<b class="pm"></b></span><span>VOC idx<b class="vo"></b></span></div>
+  <div class="air"><div class="air-row"><span>Fresh air</span><span class="mono da"></span></div><div class="meter"><i></i></div></div>
+  <div class="flag" hidden>Lab test recommended. VOCs persist after ventilation; sensor can't name the compound.</div>
+</div>`).join("");
+
+function render(){
+  const sim=showAuto?A:F;
+  $("clock").textContent=fmt(t);
+  ROOMS.forEach((def,i)=>{
+    const r=sim.rooms[i], el=$("r_"+def.id), s=status(r);
+    let occ=def.occ(Math.min(t,END-1)); if(def.id==="conf"&&extra.meetUntil>t) occ=14;
+    const chip=el.querySelector(".chip");
+    chip.className="chip "+["good","fair","poor"][s];chip.textContent=["Good","Fair","Poor"][s];
+    el.classList.toggle("poor",s===2);
+    el.querySelector(".cv").textContent=n0(r.co2);
+    el.querySelector(".po").textContent=occ;
+    const pm=el.querySelector(".pm");pm.textContent=n0(r.pm);pm.classList.toggle("hot",r.pm>=35);
+    const vo=el.querySelector(".vo");vo.textContent=n0(r.voc);vo.classList.toggle("hot",r.voc>=250);
+    el.querySelector(".da").textContent=n0(r.d*100)+"%";
+    el.querySelector(".meter i").style.width=(r.d*100)+"%";
+    el.querySelector(".flag").hidden=!(sim.auto&&r.flagged);
+  });
+  const save=A.energy&&F.energy?(1-A.energy/F.energy)*100:0;
+  $("kEnergy").textContent=showAuto?(save>=0?"−":"+")+n0(Math.abs(save))+"%":"0%";
+  $("kEnergyS").textContent=showAuto?"fresh air conditioning load":"this is the fixed schedule";
+  const h=s=>s.occMin?s.healthy/s.occMin*100:100;
+  $("kHealthy").textContent=n0(h(sim))+"%";
+  $("kHealthyS").textContent=showAuto?`vs ${n0(h(F))}% on a fixed schedule`:`vs ${n0(h(A))}% with autopilot`;
+  $("kPeak").textContent=n0(sim.peak);
+  $("kFlags").textContent=showAuto?A.flags:"0";
+  $("kFlagsS").textContent=showAuto?"VOCs ventilation can't fix":"fixed schedule can't flag";
+  $("logTitle").textContent=showAuto?"Autopilot log":"Fixed schedule log";
+  const log=sim.log.slice(0,14);
+  $("log").innerHTML=log.length?log.map(e=>`<li class="${e.cls}"><time>${fmt(e.t)}</time><span>${e.msg}</span></li>`).join(""):`<li class="empty">Nothing yet.</li>`;
+  $("play").textContent=t>=END?"Replay":running?"Pause":"Play";
+  drawChart();
+}
+
+const cv=$("chart"),ctx=cv.getContext("2d");
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function drawChart(){
+  const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;
+  if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  const L=40,R=8,T=8,B=22,ymin=400,ymax=1400;
+  const x=i=>L+(i/(END-START))*(W-L-R), y=v=>T+(1-(Math.min(ymax,Math.max(ymin,v))-ymin)/(ymax-ymin))*(H-T-B);
+  ctx.font="11px "+css("--mono");ctx.fillStyle=css("--muted");ctx.strokeStyle=css("--line");ctx.lineWidth=1;
+  [400,800,1200].forEach(v=>{ctx.beginPath();ctx.moveTo(L,y(v)+.5);ctx.lineTo(W-R,y(v)+.5);ctx.stroke();ctx.textAlign="right";ctx.textBaseline="middle";ctx.fillText(v,L-6,y(v))});
+  ctx.textAlign="center";ctx.textBaseline="top";
+  [8,11,14,17].forEach(hh=>ctx.fillText(hh+":00",x(hh*60-START),H-B+6));
+  // threshold
+  ctx.strokeStyle=css("--bad");ctx.globalAlpha=.55;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(L,y(1100)+.5);ctx.lineTo(W-R,y(1100)+.5);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+  ctx.fillStyle=css("--bad");ctx.textAlign="right";ctx.textBaseline="bottom";ctx.fillText("1,100",W-R,y(1100)-2);
+  function line(arr,color,dash,w){ctx.strokeStyle=color;ctx.lineWidth=w;ctx.setLineDash(dash);ctx.beginPath();arr.forEach((v,i)=>{i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v))});ctx.stroke();ctx.setLineDash([])}
+  line(F.series,css("--muted"),[4,3],1.5);
+  // area under autopilot
+  if(A.series.length>1){const g=ctx.createLinearGradient(0,T,0,H-B);g.addColorStop(0,css("--accent-soft"));g.addColorStop(1,"transparent");
+    ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x(0),y(ymin));A.series.forEach((v,i)=>ctx.lineTo(x(i),y(v)));ctx.lineTo(x(A.series.length-1),y(ymin));ctx.closePath();ctx.fill()}
+  line(A.series,css("--accent"),[],2);
+  const last=A.series.length-1;if(last>=0){ctx.fillStyle=css("--accent");ctx.beginPath();ctx.arc(x(last),y(A.series[last]),3.5,0,7);ctx.fill()}
+}
+
+function tick(){
+  if(!running)return;
+  for(let k=0;k<speed&&t<END;k++){step(A);step(F);t++}
+  if(t>=END){running=false;pushLog(A,"act",`Day complete. ${n0((1-A.energy/F.energy)*100)}% less fresh air energy than the fixed schedule.`)}
+  render();
+}
+function start(){clearInterval(timer);timer=setInterval(tick,110)}
+
+$("auto").onclick=()=>{showAuto=!showAuto;$("auto").setAttribute("aria-checked",showAuto);$("autoLbl").textContent=showAuto?"Autopilot on":"Autopilot off";render()};
+$("play").onclick=()=>{if(t>=END){reset();running=true}else running=!running;render()};
+$("speed").onclick=()=>{speed=speed===1?3:speed===3?6:1;$("speed").textContent=speed+"x"};
+$("reset").onclick=()=>{reset();running=true;render()};
+$("evMeet").onclick=()=>{extra.meetUntil=t+60;[A,F].forEach(s=>pushLog(s,"act","14 people walked into Conference A."));render()};
+$("evToast").onclick=()=>{toastAt=t;[A,F].forEach(s=>pushLog(s,"act","Someone burned toast in the break kitchen."));render()};
+$("evVoc").onclick=()=>{if(extra.furnitureFrom<0){extra.furnitureFrom=t;[A,F].forEach(s=>pushLog(s,"act","New furniture delivered to Classroom 204."))}render()};
+window.addEventListener("resize",drawChart);
+if(window.matchMedia)matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",render);
+
+reset();
+if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) running=false;
+render();start();
+})();
+</script>
+</body>
+</html>
